@@ -13,5 +13,5 @@ An instance of the application running on IBM Bluemix can be accessed at http://
 
 1. Select the **Deploy to Bluemix** button below to fork a copy of the project code and create the services.
 
-  [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://hub.jazz.net/git/yfphoon/PredictCustomerChurn)
+  [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/yfphoon/ChurnDemo.git)
 
