@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-	Default Mortgage Predictions
+	Predict Customer Churn
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	An example web application for making predicions using a saved WLM model
 	using Flask and the IBM WLM APIs.
 
 	Created by Rich Tarro
+	Updated by Sidney Phoon
 	May 2017
 """
 
@@ -22,76 +23,50 @@ app.config.update(dict(
 	SECRET_KEY='development key',
 ))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://admin:xxxx@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/MortgageDefault'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://admin:dxxxxxHWXOCK@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/MortgageDefault'
 #postgres://admin:XZLNWWMRNZHWXOCK@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/mydb
 db = SQLAlchemy(app)
 
-class mortgagedefault(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	FirstName = db.Column(db.String(20))
-	LastName = db.Column(db.String(20))
-	Income = db.Column(db.Integer)
-	AppliedOnline = db.Column(db.String(3))
-	Residence = db.Column(db.String(20))
-	YearCurrentAddress = db.Column(db.Integer)
-	YearsCurrentEmployer = db.Column(db.Integer)
-	NumberOfCards = db.Column(db.Integer)
-	CCDebt = db.Column(db.Integer)
-	Loans = db.Column(db.Integer)
-	LoanAmount = db.Column(db.Integer)
-	SalePrice = db.Column(db.Integer)
-	Location = db.Column(db.Integer)
-	prediction = db.Column(db.Numeric)
-	probability = db.Column(db.Numeric)
-	
-	def __init__(self, FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAddress,
-		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location,
-		prediction, probability):
-		self.FirstName = FirstName
-		self.LastName = LastName
-		self.Income = Income
-		self.AppliedOnline = AppliedOnline
-		self.Residence = Residence
-		self.YearCurrentAddress = YearCurrentAddress
-		self.YearsCurrentEmployer = YearsCurrentEmployer
-		self.NumberOfCards = NumberOfCards
-		self.CCDebt = CCDebt
-		self.Loans = Loans
-		self.LoanAmount = LoanAmount
-		self.SalePrice = SalePrice
-		self.Location = Location
-		self.prediction = prediction
-		self.probability = probability
 
-	def __repr__(self):
-		return '<mortgagedefault%r>' % self.Income
-
-def saveDB(FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAddress,
-		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location,
-		prediction, probability):
-	record = mortgagedefault(FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAddress,
-		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location,
-		prediction, probability)
-	db.session.add(record)
-	db.session.commit()
-
-
-def predictDefault(ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan):
+def predictChurn(ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan):
 	
 	service_path = 'https://ibm-watson-ml.mybluemix.net'
-	username = 'xxxx'
-	password = '****'
-
+	username = '********'
+	password = '*******'
+	
 	headers = urllib3.util.make_headers(basic_auth='{}:{}'.format(username, password))
 	url = '{}/v2/identity/token'.format(service_path)
 	response = requests.get(url, headers=headers)
 	mltoken = json.loads(response.text).get('token')
-	header_online = {'Content-Type': 'application/json', 'Authorization': mltoken}
-	scoring_href = "https://ibm-watson-ml.mybluemix.net/32768/v2/scoring/3194"
-	payload_scoring = ({"record":[ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan]})
-	response_scoring = requests.put(scoring_href, json=payload_scoring, headers=header_online)
+
+	header_online = {'Content-Type': 'application/json', 'Authorization': "Bearer " + mltoken}
+	scoring_href = 'https://ibm-watson-ml.mybluemix.net/v3/wml_instances/2d66a4d8-b28f-47c3-a667-8d7409861f75/published_models/03d74b90-b22e-4ca0-a278-aa063841d8ee/deployments/0b4e5b68-c9a0-4a20-8548-d0b63739a73d/online'
+	
+	payload_scoring = {
+    "fields": [
+    "ID",
+    "Gender",
+    "Status",
+    "Children",
+    "EstIncome",
+    "CarOwner",
+    "Age",
+    "LongDistance",
+    "International",
+    "Local",
+    "Dropped",
+    "Paymethod",
+    "LocalBilltype",
+    "LongDistanceBilltype",
+    "Usage",
+    "RatePlan"
+    ],
+    "values": [ [ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan] ]}
+	
+	response_scoring = requests.post(scoring_href, json=payload_scoring, headers=header_online)
 	
 	result = response_scoring.text
+	print(result)
 	return response_scoring
 
 
@@ -132,34 +107,6 @@ def index():
 		Usage=52.900000
 		RatePlan=int(request.form['RatePlan'])
 		
-		#Gender=request.form['Gender']
-		#print "Gender=" %Gender
-		#Status='S'
-		#Children=int(request.form['Children'])
-		#EstIncome=int(request.form['EstIncome'])
-		#CarOwner='N'
-		#Age=int(request.form['Age'])
-		#LongDistance=int(request.form['YearsCurrentEmployer'])
-		#International=5.990000
-		#Local=30.510000
-		#Dropped=int(request.form['Dropped'])
-		#Paymethod=request.form['Paymethod']
-		#LocalBilltype='FreeLocal'
-		#LongDistanceBilltype='Intnl_discount'
-		#Usage=52.900000
-		#RatePlan=int(request.form['RatePlan'])
-
-		#Income = int(request.form['Income'])
-		#AppliedOnline = request.form['AppliedOnline']
-		#Residence = request.form['Residence']
-		#YearCurrentAddress = int(request.form['YearCurrentAddress'])
-		#YearsCurrentEmployer = int(request.form['YearsCurrentEmployer'])
-		#NumberOfCards = int(request.form['NumberOfCards'])
-		#CCDebt = int(request.form['CCDebt'])
-		#Loans = int(request.form['Loans'])
-		#LoanAmount = int(request.form['LoanAmount'])
-		#SalePrice = int(request.form['SalePrice'])
-		#Location = int(request.form['Location'])
 		
 		
 		session[Gender]=Gender
@@ -178,81 +125,22 @@ def index():
 		session[Usage]=Usage
 		session[RatePlan]=RatePlan
 
-		#session['Income'] = EstIncome
-		#session['AppliedOnline'] = AppliedOnline
-		#session['Residence'] = Residence
-		#session['YearCurrentAddress'] = YearCurrentAddress
-		#session['YearsCurrentEmployer'] = YearsCurrentEmployer
-		#session['NumberOfCards'] = NumberOfCards
-		#session['CCDebt'] = CCDebt
-		#session['Loans'] = Loans
-		#session['LoanAmount'] = LoanAmount
-		#session['SalePrice'] = SalePrice
-		#session['Location'] = Location
 
 
-		response_scoring = predictDefault(ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan)
-
-		prediction = response_scoring.json()["result"]["prediction"]
-		probability = response_scoring.json()["result"]["probability"]["values"][1]
+		response_scoring = predictChurn(ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan)
+		prediction = response_scoring.json()["values"][0][27]
+		probability= response_scoring.json()["values"][0][26][1]
 
 		session['prediction'] = prediction
 		session['probability'] = probability
 
-		flash('Successful Prediction')
+		#flash('Successful Prediction')
 		return render_template('scoreSQL.html', response_scoring=response_scoring, request=request)
 
 
 	else:
 		return render_template('input.html')
 
-@app.route('/saveData', methods=['POST'])
-def saveData():
-	FirstName = request.form['FirstName']
-	LastName = request.form['LastName']
-
-	Income = session['Income']
-	AppliedOnline = session['AppliedOnline']
-	Residence = session['Residence']
-	YearCurrentAddress = session['YearCurrentAddress']
-	YearsCurrentEmployer = session['YearsCurrentEmployer']
-	NumberOfCards = session['NumberOfCards']
-	CCDebt = session['CCDebt']
-	Loans = session['Loans']
-	LoanAmount = session['LoanAmount']
-	SalePrice = session['SalePrice']
-	Location = session['Location']
-	prediction = session['prediction']
-	probability = session['probability']
-
-	#print(FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAddress, YearsCurrentEmployer, NumberOfCards,
-	#   CCDebt, Loans, LoanAmount, SalePrice, Location)
-
-	saveDB(FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAddress,YearsCurrentEmployer,
-		NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location, prediction, probability)
-
-	flash('Prediction Successfully Stored in Database')
-
-	return render_template('save.html')
-
-@app.route('/scoretest', methods=['GET', 'POST'])
-def scoretest():
-	
-	service_path = 'https://ibm-watson-ml.mybluemix.net'
-	username = 'xxxx'
-	password = 'xxxx'
-
-	headers = urllib3.util.make_headers(basic_auth='{}:{}'.format(username, password))
-	url = '{}/v2/identity/token'.format(service_path)
-	response = requests.get(url, headers=headers)
-	mltoken = json.loads(response.text).get('token')
-	header_online = {'Content-Type': 'application/json', 'Authorization': mltoken}
-	scoring_href = "https://ibm-watson-ml.mybluemix.net/32768/v2/scoring/2264"
-	payload_scoring = {"record":[999,47422.000000,"YES","Owner Occupier",11.000000,12.000000,2.000000,2010.000000,1.000000,12315.000000,330000,100]}
-	response_scoring = requests.put(scoring_href, json=payload_scoring, headers=header_online)
-	
-	result = response_scoring.text
-	return render_template('scoretest.html', result=result, response_scoring=response_scoring)
 
 #if __name__ == '__main__':
 #   app.run()
