@@ -22,7 +22,7 @@ app.config.update(dict(
 	SECRET_KEY='development key',
 ))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://admin:XZLNWWMRNZHWXOCK@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/MortgageDefault'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://admin:xxxx@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/MortgageDefault'
 #postgres://admin:XZLNWWMRNZHWXOCK@bluemix-sandbox-dal-9-portal.8.dblayer.com:26360/mydb
 db = SQLAlchemy(app)
 
@@ -79,8 +79,8 @@ def saveDB(FirstName, LastName, Income, AppliedOnline, Residence, YearCurrentAdd
 def predictDefault(ID,Gender,Status,Children,EstIncome,CarOwner,Age,LongDistance,International,Local,Dropped,Paymethod,LocalBilltype,LongDistanceBilltype,Usage,RatePlan):
 	
 	service_path = 'https://ibm-watson-ml.mybluemix.net'
-	username = 'db7336ae-b258-4b0c-9bd2-57ca9d090f08'
-	password = 'ff129993-058d-472b-bbcb-edf40568b6c8'
+	username = 'xxxx'
+	password = '****'
 
 	headers = urllib3.util.make_headers(basic_auth='{}:{}'.format(username, password))
 	url = '{}/v2/identity/token'.format(service_path)
