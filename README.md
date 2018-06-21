@@ -7,7 +7,7 @@ queried to analyze mortgage application patterns.
 The model utilizes a Decision Tree classifier to predict whether a mortgage loan will default based on a number of features
 regarding the loan and loan applicant.
 
-An instance of the application running on IBM Bluemix can be accessed at http://mortgagedefault.mybluemix.net/
+An instance of the application running on IBM Cloud can be accessed at https://predictcustomerchurn.mybluemix.net/
 
 ## Deploy to Bluemix
 
