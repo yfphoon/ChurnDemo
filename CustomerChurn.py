@@ -239,8 +239,8 @@ def saveData():
 def scoretest():
 	
 	service_path = 'https://ibm-watson-ml.mybluemix.net'
-	username = '37a6c710-9576-456e-a8be-5cf859ccb7e9'
-	password = '9eb88d5d-6e5e-4e85-b089-2e6c5ab579b3'
+	username = 'xxxx'
+	password = 'xxxx'
 
 	headers = urllib3.util.make_headers(basic_auth='{}:{}'.format(username, password))
 	url = '{}/v2/identity/token'.format(service_path)
